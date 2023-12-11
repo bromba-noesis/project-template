@@ -1,0 +1,38 @@
+name: Dev
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [ "development" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: Development
+    steps:
+      - name: deploy
+        run: echo deploying to Dev...
+
+  report_project:
+      needs: build
+      uses: bromba-noesis/workflows-repo/.github/workflows/wiki_project_update.yml@main
+      with:
+        myEnvironment: Development
+        myTag: 0.0.1
+      secrets: inherit
+  
+  report_lib:
+     needs: build
+     runs-on: ubuntu-latest
+     steps:
+      - name: wiki_lib_update
+        uses: indiesdev/curl@v1.1
+        with:
+          url: https://api.github.com/repos/bromba-noesis/lib_repo/actions/workflows/wiki_library_update.yml/dispatches    #how to choose which lib wiki is updated?
+          method: "POST"
+          accept: 204
+          headers: '{ "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" }'
+          bearer-token: ${{ secrets.BROMBA_NOESIS_PAT2 }}
+          body: '{ "ref": "main", "inputs": { "myRepo": ${{ github.event.repository.name }}, "myEnvironment": "Development", myVersion: "0.0.1" }}'    #how to get lib version?
+          log-response: false
+          timeout: 3000
