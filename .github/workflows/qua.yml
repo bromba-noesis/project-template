@@ -1,0 +1,13 @@
+name: Qua
+
+on:
+  push:
+    branches: [ "release/**" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: Quality
+    steps:
+      - name: deploy
+        run: echo deploying to Qua...
